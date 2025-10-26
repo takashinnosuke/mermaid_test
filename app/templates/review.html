@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Diagram Review - {{ diagram_id }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      mermaid.initialize({ startOnLoad: false });
+    </script>
+    <style>
+      body {
+        height: 100vh;
+      }
+      .container-flex {
+        display: flex;
+        height: calc(100vh - 120px);
+      }
+      #mermaid-preview {
+        overflow: auto;
+        background: #f8f8f8;
+        padding: 1rem;
+      }
+      #editor {
+        height: 60vh;
+        border: 1px solid #ddd;
+      }
+      .panel-list {
+        height: 20vh;
+        overflow: auto;
+      }
+      pre.diff-block {
+        background: #222;
+        color: #fff;
+        padding: 0.5rem;
+        height: 20vh;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container is-fluid">
+        <h1 class="title">レビュー: {{ diagram_id }}</h1>
+        <div class="buttons">
+          <button id="save-json" class="button is-primary">JSON保存</button>
+          <button id="regenerate-mermaid" class="button is-info">Mermaid再生成</button>
+          <button id="approve" class="button is-success">承認してバージョン保存</button>
+          <button id="refresh-diff" class="button is-warning">差分更新</button>
+        </div>
+        <div class="container-flex">
+          <div class="column is-half" id="mermaid-column">
+            <article class="panel">
+              <p class="panel-heading">Mermaidプレビュー</p>
+              <div class="panel-block">
+                <div id="mermaid-preview"></div>
+              </div>
+            </article>
+          </div>
+          <div class="column is-half">
+            <article class="panel">
+              <p class="panel-heading">JSONエディタ</p>
+              <div class="panel-block">
+                <div id="editor"></div>
+              </div>
+            </article>
+            <article class="panel">
+              <p class="panel-heading">低信頼ノード</p>
+              <div class="panel-block panel-list">
+                <ul id="low-confidence-list">
+                  {% for node_id, score in low_confidence %}
+                  <li>{{ node_id }} - {{ '%.2f'|format(score) }}</li>
+                  {% else %}
+                  <li>低信頼ノードはありません。</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </article>
+            <article class="panel">
+              <p class="panel-heading">confidence順</p>
+              <div class="panel-block panel-list">
+                <ul>
+                  {% for node_id, score in confidence_rank %}
+                  <li>{{ node_id }} - {{ '%.2f'|format(score) }}</li>
+                  {% else %}
+                  <li>ノードがありません。</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </article>
+            <article class="panel">
+              <p class="panel-heading">差分ビュー</p>
+              <div class="panel-block">
+                <pre class="diff-block" id="diff-output">差分はまだ取得されていません。</pre>
+              </div>
+            </article>
+            <article class="panel">
+              <p class="panel-heading">保存済みバージョン</p>
+              <div class="panel-block panel-list">
+                <ul>
+                  {% for version in versions %}
+                  <li>{{ version }}</li>
+                  {% else %}
+                  <li>まだバージョンがありません。</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script>
+      const diagramId = "{{ diagram_id }}";
+      const initialMermaid = `{{ mermaid_code | replace('`', '\\`') }}`;
+      const initialJson = `{{ diagram_json | replace('`', '\\`') }}`;
+    </script>
+    <script src="/static/review.js"></script>
+  </body>
+</html>
