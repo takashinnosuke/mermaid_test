@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+python-multipart
+requests
+pydantic
+jinja2
+deepdiff
+python-dotenv
